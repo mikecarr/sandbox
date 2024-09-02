@@ -48,3 +48,48 @@ Available modes:
 24 : 640x480@60
 25 : 640x480@60
 ```
+
+### Wifi cards
+===================
+RTL8812BU
+===================
+git clone https://github.com/fastoe/RTL8812BU.git
+
+cd RTL8812BU/
+
+edit Makefile:
+sed -i 's/CONFIG_80211W = n/CONFIG_80211W = y/' Makefile
+sed -i 's/CONFIG_WIFI_MONITOR = n/CONFIG_WIFI_MONITOR = y/' Makefile
+make
+sudo make install
+
+
+Copy 88x2bu.ko to /lib/modules/$(uname -r)/kernel/drivers/net/wireless
+
+Add kernel/drivers/net/wireless/88x2bu.ko: entry in /lib/modules/$(uname -r)/modules.dep
+sudo depmod
+sudo modprobe 88x2bu
+
+
+====================
+8812eu driver for radxa.
+https://t.me/c/1809358416/63019/86714
+
+$ sudo modprobe cfg80211
+$ sudo insmod 8812eu_radxa.ko rtw_tx_pwr_by_rate=0 rtw_tx_pwr_lmt_enable=0
+
+$ lsusb 
+would shows 
+"Bus 00* Device 00*: ID 0bda:a81a Realtek Semiconductor Corp. 802.11ac NIC" this is 8812eu.
+
+$ nmcli
+would shows 8812eu as wlan0 module.
+
+$ sudo systemctl restart wifibroadcast@gs
+$ wfb-cli gs 
+
+
+create file:
+/etc/modprobe.d/8812eu_radxa.conf
+
+options 8812eu_radxa rtw_tx_pwr_by_rate=0 rtw_tx_pwr_lmt_enable=0
