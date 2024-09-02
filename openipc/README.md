@@ -50,9 +50,9 @@ Available modes:
 ```
 
 ### Wifi cards
-===================
-RTL8812BU
-===================
+
+#### RTL8812BU
+
 git clone https://github.com/fastoe/RTL8812BU.git
 
 cd RTL8812BU/
@@ -71,7 +71,7 @@ sudo depmod
 sudo modprobe 88x2bu
 
 
-====================
+#### 8812eu
 8812eu driver for radxa.
 https://t.me/c/1809358416/63019/86714
 
