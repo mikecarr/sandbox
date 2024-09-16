@@ -50,8 +50,12 @@ Available modes:
 ```
 
 ### MSP OSD
-curl -L -o /usr/bin/msposd https://raw.githubusercontent.com/openipc/msposd/main/release/star6e/msposd
+https://github.com/OpenIPC/msposd
 
+get latest
+```bash
+curl -L -o /usr/bin/msposd https://raw.githubusercontent.com/openipc/msposd/main/release/star6e/msposd
+```
 
 
 ### Wifi cards
