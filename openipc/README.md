@@ -49,6 +49,11 @@ Available modes:
 25 : 640x480@60
 ```
 
+### MSP OSD
+curl -L -o /usr/bin/msposd https://raw.githubusercontent.com/openipc/msposd/main/release/star6e/msposd
+
+
+
 ### Wifi cards
 
 #### RTL8812BU
@@ -98,3 +103,5 @@ create file:
 /home/home/wfb/wfb-ng/wfb_rx -p 0 -i 7669206 -u 5666 -K /etc/gs.key 14550 wlx00127b217d10 wlx00127b217c4c
 
 options 8812eu_radxa rtw_tx_pwr_by_rate=0 rtw_tx_pwr_lmt_enable=0
+
+
