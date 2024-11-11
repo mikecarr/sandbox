@@ -1,3 +1,7 @@
+See https://radxa-repo.github.io/rbuild/
+
+
+
 Flash the official image.
 
 set udev and reboot.

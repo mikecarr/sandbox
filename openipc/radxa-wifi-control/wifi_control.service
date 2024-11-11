@@ -1,0 +1,10 @@
+[Unit]
+Description=Toggle WiFi via GPIO
+After=network.target
+
+[Service]
+ExecStart=/path/to/toggle_wifi.sh
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
