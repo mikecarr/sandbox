@@ -28,6 +28,8 @@ alias grep='grep --color=auto' # colorize grep output (good habit to have)
 alias update='sudo apt update && sudo apt upgrade'
 alias docker-compose='docker compose' # Requires docker compose v2
 
+# testing 
+
 # Add your own aliases here.  Format: alias <alias_name>='<command>'
 # Example: alias my_script='python /path/to/my/script.py'
 # Some more alias to avoid making mistakes:
