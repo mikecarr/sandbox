@@ -19,6 +19,7 @@ alias gc='git commit -m'
 alias gs='git status'
 alias gp='git push'
 alias gl='git log --oneline --decorate --graph'
+alias h='history'
 alias ..='cd ..'
 alias ...='cd ../..'
 alias ....='cd ../../..'
@@ -29,6 +30,10 @@ alias docker-compose='docker compose' # Requires docker compose v2
 
 # Add your own aliases here.  Format: alias <alias_name>='<command>'
 # Example: alias my_script='python /path/to/my/script.py'
+# Some more alias to avoid making mistakes:
+alias rm='rm -i'
+alias cp='cp -i'
+alias mv='mv -i'
 
 EOF
 
