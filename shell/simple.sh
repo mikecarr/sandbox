@@ -13,7 +13,7 @@ function create_alias_file() {
   cat <<EOF > "$ALIAS_FILE"
 # Aliases set up by automated script.  Do NOT edit directly!
 
-alias la='ls -la'
+alias ll='ls -la'
 alias ga='git add'
 alias gc='git commit -m'
 alias gs='git status'
