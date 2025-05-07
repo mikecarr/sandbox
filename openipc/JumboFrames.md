@@ -1,11 +1,7 @@
 # JumboFrames
 
+Update to latest (older than 5/2025)
 
-
-Update MTU
-```
-ip link set dev wlan0 mtu 3994
-```
 
 * wfb.yaml
 ```
@@ -15,6 +11,7 @@ stbc=1
 ldpc=1
 fec_k=10
 fec_n=15
+mlink: 3994
 ```
 
 * majestic.yaml
