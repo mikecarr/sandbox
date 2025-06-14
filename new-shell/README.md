@@ -24,9 +24,10 @@ Before running the script, ensure you have:
 
 1. **Download the script**:
    ```bash
-   wget https://raw.githubusercontent.com/yourusername/yourrepo/main/setup.sh
+   wget https://raw.githubusercontent.com/mikecarr/sandbox/refs/heads/master/new-shell/setup.sh
+   
    # or
-   curl -O https://raw.githubusercontent.com/yourusername/yourrepo/main/setup.sh
+   curl -O https://raw.githubusercontent.com/mikecarr/sandbox/refs/heads/master/new-shell/setup.sh
    ```
 
 2. **Make it executable**:
