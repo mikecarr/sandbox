@@ -146,11 +146,30 @@ copy_ssh_keys() {
     chmod 700 "$SSH_KEY_PATH"
     
     # Check if we can connect to the remote host
-    if ! ssh -o ConnectTimeout=10 -o BatchMode=yes "$REMOTE_USER@$REMOTE_HOST" exit 2>/dev/null; then
-        log_error "Cannot connect to $REMOTE_HOST. Please ensure:"
-        log_error "1. The host is reachable"
-        log_error "2. You have SSH access configured"
-        log_error "3. The remote user exists"
+    log_info "Testing connection to $REMOTE_HOST..."
+    
+    # First try with BatchMode (key-based auth)
+    if ssh -o ConnectTimeout=10 -o BatchMode=yes "$REMOTE_USER@$REMOTE_HOST" exit 2>/dev/null; then
+        log_success "Connection successful with key-based authentication"
+        return 0
+    fi
+    
+    # If that fails, try interactive connection (password auth)
+    log_warning "Key-based auth failed. Attempting password authentication..."
+    log_info "You may be prompted for your password multiple times during the setup"
+    
+    if ssh -o ConnectTimeout=10 "$REMOTE_USER@$REMOTE_HOST" exit; then
+        log_success "Connection successful with password authentication"
+        log_info "SSH keys will be copied to enable key-based auth for future use"
+        return 0
+    else
+        log_error "Cannot connect to $REMOTE_HOST. Please check:"
+        log_error "1. The host is reachable: ping $REMOTE_HOST"
+        log_error "2. SSH service is running on the remote host"
+        log_error "3. Username '$REMOTE_USER' exists on the remote host"
+        log_error "4. Password authentication is enabled"
+        log_error ""
+        log_info "To test manually: ssh $REMOTE_USER@$REMOTE_HOST"
         return 1
     fi
     
@@ -160,12 +179,16 @@ copy_ssh_keys() {
     
     for key in "${key_files[@]}"; do
         if ssh "$REMOTE_USER@$REMOTE_HOST" "test -f ~/.ssh/$key"; then
-            log_info "Copying $key from remote host"
+            log_info "Copying private key $key from remote host"
             scp "$REMOTE_USER@$REMOTE_HOST:~/.ssh/$key" "$SSH_KEY_PATH/"
+            log_info "Copying public key $key.pub from remote host"
             scp "$REMOTE_USER@$REMOTE_HOST:~/.ssh/$key.pub" "$SSH_KEY_PATH/" 2>/dev/null || true
             chmod 600 "$SSH_KEY_PATH/$key"
             chmod 644 "$SSH_KEY_PATH/$key.pub" 2>/dev/null || true
             keys_copied=$((keys_copied + 1))
+            log_success "Successfully copied $key key pair"
+        else
+            log_info "Key $key not found on remote host, skipping"
         fi
     done
     
