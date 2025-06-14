@@ -15,19 +15,22 @@ An automated shell configuration script that copies SSH keys, installs essential
 
 Before running the script, ensure you have:
 
-1. **SSH access** to the remote machine (default: `10.0.1.5`)
+1. **SSH access** to the remote machine (default: `10.0.1.5`) with either:
+   - SSH key authentication (if already set up), OR
+   - Password authentication (for fresh installs)
 2. **Sudo privileges** on the target machine for package installation
-3. **SSH keys and config files** present on the remote machine
+3. **SSH keys and config files** present on the remote machine you want to copy from
 4. **Network connectivity** between machines
+
+**Note**: This script is designed to work on fresh installations where you don't have SSH keys yet. It will copy existing keys from the remote machine to bootstrap your new environment.
 
 ## Quick Start
 
 1. **Download the script**:
    ```bash
-   wget https://raw.githubusercontent.com/mikecarr/sandbox/refs/heads/master/new-shell/setup.sh
-   
+   wget https://raw.githubusercontent.com/yourusername/yourrepo/main/setup.sh
    # or
-   curl -O https://raw.githubusercontent.com/mikecarr/sandbox/refs/heads/master/new-shell/setup.sh
+   curl -O https://raw.githubusercontent.com/yourusername/yourrepo/main/setup.sh
    ```
 
 2. **Make it executable**:
@@ -131,14 +134,17 @@ Host target-machine
 ./setup.sh --host target-machine
 ```
 
-### Running on a fresh Ubuntu server
+### Running on a fresh machine (typical use case)
 ```bash
-# First, ensure you can SSH to the remote machine
-ssh-keygen -t ed25519
-ssh-copy-id user@10.0.1.5
+# On a brand new Ubuntu/CentOS/macOS installation
+# You'll be prompted for the password of the remote machine several times
+./setup.sh --host 10.0.1.5 --user mcarr
 
-# Then run the setup
-./setup.sh
+# The script will:
+# 1. Copy SSH keys from 10.0.1.5 to your new machine
+# 2. Install essential development packages
+# 3. Copy your dotfiles and configurations
+# 4. Set up your development environment exactly like the remote machine
 ```
 
 ## Backup and Recovery
