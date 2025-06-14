@@ -42,6 +42,7 @@ UBUNTU_PACKAGES=(
     "wget"
     "vim"
     "neovim"
+    "zsh"
     "tmux"
     "htop"
     "tree"
@@ -60,6 +61,7 @@ CENTOS_PACKAGES=(
     "wget"
     "vim"
     "neovim"
+    "zsh"
     "tmux"
     "htop"
     "tree"
@@ -80,6 +82,7 @@ MACOS_PACKAGES=(
     "wget"
     "vim"
     "neovim"
+    "zsh"
     "tmux"
     "htop"
     "tree"
@@ -180,15 +183,29 @@ copy_ssh_keys() {
     for key in "${key_files[@]}"; do
         if ssh "$REMOTE_USER@$REMOTE_HOST" "test -f ~/.ssh/$key"; then
             log_info "Copying private key $key from remote host"
-            scp "$REMOTE_USER@$REMOTE_HOST:~/.ssh/$key" "$SSH_KEY_PATH/"
-            log_info "Copying public key $key.pub from remote host"
-            scp "$REMOTE_USER@$REMOTE_HOST:~/.ssh/$key.pub" "$SSH_KEY_PATH/" 2>/dev/null || true
-            chmod 600 "$SSH_KEY_PATH/$key"
-            chmod 644 "$SSH_KEY_PATH/$key.pub" 2>/dev/null || true
-            keys_copied=$((keys_copied + 1))
-            log_success "Successfully copied $key key pair"
+            if scp "$REMOTE_USER@$REMOTE_HOST:~/.ssh/$key" "$SSH_KEY_PATH/"; then
+                log_success "Successfully copied private key $key"
+                chmod 600 "$SSH_KEY_PATH/$key"
+                
+                # Try to copy public key (may not exist)
+                if ssh "$REMOTE_USER@$REMOTE_HOST" "test -f ~/.ssh/$key.pub"; then
+                    log_info "Copying public key $key.pub from remote host"
+                    if scp "$REMOTE_USER@$REMOTE_HOST:~/.ssh/$key.pub" "$SSH_KEY_PATH/"; then
+                        log_success "Successfully copied public key $key.pub"
+                        chmod 644 "$SSH_KEY_PATH/$key.pub"
+                    else
+                        log_warning "Failed to copy public key $key.pub"
+                    fi
+                else
+                    log_info "Public key $key.pub not found on remote host"
+                fi
+                
+                keys_copied=$((keys_copied + 1))
+            else
+                log_error "Failed to copy private key $key"
+            fi
         else
-            log_info "Key $key not found on remote host, skipping"
+            log_info "Private key $key not found on remote host, skipping"
         fi
     done
     
@@ -258,8 +275,67 @@ copy_config_files() {
     done
 }
 
-# Function to set up shell environment
-setup_shell() {
+# Function to install Oh My Zsh
+install_oh_my_zsh() {
+    if [[ -d "$HOME/.oh-my-zsh" ]]; then
+        log_info "Oh My Zsh already installed, skipping"
+        return 0
+    fi
+    
+    log_info "Installing Oh My Zsh"
+    
+    # Download and install Oh My Zsh
+    if command_exists curl; then
+        sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+    elif command_exists wget; then
+        sh -c "$(wget -O- https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+    else
+        log_error "Neither curl nor wget found. Cannot install Oh My Zsh"
+        return 1
+    fi
+    
+    # Install popular plugins
+    log_info "Installing Oh My Zsh plugins"
+    
+    # zsh-autosuggestions
+    if [[ ! -d "$HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions" ]]; then
+        git clone https://github.com/zsh-users/zsh-autosuggestions "$HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
+    fi
+    
+    # zsh-syntax-highlighting
+    if [[ ! -d "$HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting" ]]; then
+        git clone https://github.com/zsh-users/zsh-syntax-highlighting.git "$HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting"
+    fi
+    
+    # powerlevel10k theme (optional but popular)
+    if [[ ! -d "$HOME/.oh-my-zsh/custom/themes/powerlevel10k" ]]; then
+        git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "$HOME/.oh-my-zsh/custom/themes/powerlevel10k"
+    fi
+    
+    log_success "Oh My Zsh installed successfully"
+}
+
+# Function to set zsh as default shell
+set_zsh_default() {
+    local current_shell=$(getent passwd $USER | cut -d: -f7)
+    local zsh_path=$(which zsh)
+    
+    if [[ "$current_shell" == "$zsh_path" ]]; then
+        log_info "Zsh is already the default shell"
+        return 0
+    fi
+    
+    log_info "Setting zsh as default shell"
+    
+    # Add zsh to /etc/shells if not present
+    if ! grep -q "$zsh_path" /etc/shells; then
+        echo "$zsh_path" | sudo tee -a /etc/shells
+    fi
+    
+    # Change default shell
+    sudo chsh -s "$zsh_path" "$USER"
+    log_success "Default shell changed to zsh (will take effect on next login)"
+}
     log_info "Setting up shell environment"
     
     # Source the new configuration files
