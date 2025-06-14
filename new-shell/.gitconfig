@@ -1,0 +1,36 @@
+[user]
+    name = Mike Carr
+    email = mcarr67@gmail.com
+    username = mcarr
+
+[color]
+    ui = true
+    branch = true
+    diff = true
+    interactive = true
+    status = true
+
+[color "status"]
+    added = green
+    changed = red
+    deleted = red
+    untracked = yellow
+
+#[push]
+#    default = matching
+
+[core]
+  excludesfile = /home/mcarr/.gitignore
+	pager = cat
+
+[alias]
+    st = status
+    ci = checkin
+    co = checkout
+    debug = !GIT_TRACE=1 git
+    
+[init]
+	defaultBranch = master
+[pull]
+	ff = only
+	rebase = true
