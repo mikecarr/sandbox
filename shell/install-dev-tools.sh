@@ -210,7 +210,7 @@ print_status ""
 
 # Verify key installations
 print_status "Verifying installations..."
-for cmd in gcc git make curl wget ripgrep fzf python3 node npm htop btop; do
+for cmd in gcc git make curl wget fzf python3 node npm htop btop; do
   if command -v "$cmd" &>/dev/null; then
     echo -e "  ✅ $cmd: $(command -v "$cmd")"
   else
@@ -218,14 +218,46 @@ for cmd in gcc git make curl wget ripgrep fzf python3 node npm htop btop; do
   fi
 done
 
-# Check Python tools
-for tool in black flake8 mypy pytest ruff uv; do
-  if command -v "$tool" &>/dev/null || pipx list 2>/dev/null | grep -q "$tool"; then
-    echo -e "  ✅ $tool: available"
+# Check ripgrep specifically (it might be installed as 'rg')
+if command -v rg &>/dev/null; then
+  echo -e "  ✅ ripgrep (rg): $(command -v rg)"
+elif command -v ripgrep &>/dev/null; then
+  echo -e "  ✅ ripgrep: $(command -v ripgrep)"
+else
+  echo -e "  ❌ ripgrep: not found"
+fi
+
+# Check Python tools with better detection
+print_status ""
+print_status "Python tools verification:"
+for tool in black flake8 mypy pytest; do
+  if command -v "$tool" &>/dev/null; then
+    echo -e "  ✅ $tool: $(command -v "$tool")"
+  elif pipx list 2>/dev/null | grep -q "$tool"; then
+    echo -e "  ✅ $tool: available via pipx"
   else
-    echo -e "  ⚠️  $tool: not found (may need manual install)"
+    echo -e "  ⚠️  $tool: not found"
   fi
 done
+
+# Check UV specifically
+if command -v uv &>/dev/null; then
+  echo -e "  ✅ uv: $(command -v uv)"
+elif [[ -f "$HOME/.cargo/bin/uv" ]]; then
+  echo -e "  ⚠️  uv: installed but not in PATH ($HOME/.cargo/bin/uv)"
+  echo -e "     Run: export PATH=\"\$HOME/.cargo/bin:\$PATH\""
+else
+  echo -e "  ❌ uv: not found"
+fi
+
+# Check ruff specifically
+if command -v ruff &>/dev/null; then
+  echo -e "  ✅ ruff: $(command -v ruff)"
+elif pipx list 2>/dev/null | grep -q "ruff"; then
+  echo -e "  ✅ ruff: available via pipx"
+else
+  echo -e "  ⚠️  ruff: not found (install with: pipx install ruff)"
+fi
 
 print_status ""
 print_status "🎉 Your development environment is ready!"
