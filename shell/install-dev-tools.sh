@@ -57,6 +57,7 @@ sudo apt install -y \
     wget \
     ca-certificates \
     gnupg \
+    uv \
     lsb-release
 
 # Modern CLI tools (recommended for LazyVim/development)
