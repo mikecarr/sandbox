@@ -157,6 +157,146 @@ if command -v fdfind &> /dev/null && ! command -v fd &> /dev/null; then
     sudo ln -sf $(which fdfind) /usr/local/bin/fd
 fi
 
+# Setup Git configuration
+print_status "Setting up Git configuration..."
+
+# Check if .gitconfig already exists
+if [[ -f "$HOME/.gitconfig" ]]; then
+    print_status "Backing up existing .gitconfig..."
+    cp "$HOME/.gitconfig" "$HOME/.gitconfig.bak.$(date +%Y%m%d_%H%M%S)"
+fi
+
+# Create .gitconfig
+print_status "Creating Git configuration..."
+cat > "$HOME/.gitconfig" << 'EOF'
+[user]
+    name = Mike Carr
+    email = mcarr67@gmail.com
+    username = mcarr
+[color]
+    ui = true
+    branch = true
+    diff = true
+    interactive = true
+    status = true
+[color "status"]
+    added = green
+    changed = red
+    deleted = red
+    untracked = yellow
+#[push]
+#    default = matching
+[core]
+    excludesfile = ~/.gitignore
+    pager = cat
+[alias]
+    st = status
+    ci = checkin
+    co = checkout
+    debug = !GIT_TRACE=1 git
+    
+[init]
+    defaultBranch = master
+[pull]
+    ff = only
+    rebase = true
+EOF
+
+# Create a basic .gitignore file
+print_status "Creating global .gitignore..."
+cat > "$HOME/.gitignore" << 'EOF'
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Editor files
+*~
+*.swp
+*.swo
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.env
+.venv
+ENV/
+env.bak/
+venv.bak/
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+EOF
+
+print_status "✅ Git configuration completed"
+print_status "   - .gitconfig created with user settings and aliases"
+print_status "   - .gitignore created with common ignore patterns"
+
+# Install UV (fast Python package installer and project manager)
+print_status "Installing UV (fast Python package installer)..."
+if ! command -v uv &> /dev/null; then
+    print_status "Downloading and installing UV..."
+    
+    # Download and run UV installer
+    if wget -qO- https://astral.sh/uv/install.sh | sh; then
+        print_status "UV installer completed"
+        
+        # Add UV to current session PATH
+        export PATH="$HOME/.cargo/bin:$PATH"
+        
+        # Add to shell configs if not already there
+        for shell_config in ~/.bashrc ~/.zshrc ~/.profile; do
+            if [[ -f "$shell_config" ]] && ! grep -q "/.cargo/bin" "$shell_config"; then
+                print_status "Adding UV to PATH in $shell_config"
+                echo 'export PATH="$HOME/.cargo/bin:$PATH"' >> "$shell_config"
+            fi
+        done
+        
+        # Verify UV installation
+        if command -v uv &> /dev/null; then
+            print_status "✅ UV installed successfully: $(uv --version)"
+        elif [[ -f "$HOME/.cargo/bin/uv" ]]; then
+            print_status "✅ UV binary found at $HOME/.cargo/bin/uv"
+            print_warning "UV not in current PATH - restart shell or run: export PATH=\"\$HOME/.cargo/bin:\$PATH\""
+        else
+            print_warning "UV installation may have failed"
+        fi
+    else
+        print_warning "UV installation script failed"
+    fi
+else
+    print_status "✅ UV is already installed: $(uv --version)"
+fi
+
 print_status "Setting up Python development environment..."
 
 # Check if we're in a newer system with externally-managed-environment
