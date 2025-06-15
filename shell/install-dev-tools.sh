@@ -177,7 +177,7 @@ if python3 -m pip install --help 2>/dev/null | grep -q "break-system-packages"; 
     pipx install pytest || print_warning "Failed to install pytest"
     
     # Also install system packages for common Python dev tools
-    sudo apt install -y python3-flake8 python3-pytest python3-pip python3-venv || print_warning "Some Python packages not available"
+    sudo apt install -y python3-black python3-flake8 python3-pytest python3-pip python3-venv || print_warning "Some Python packages not available"
     
 else
     # Legacy system - use pip with --user
