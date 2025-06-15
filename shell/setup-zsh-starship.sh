@@ -259,8 +259,13 @@ set_default_shell() {
     # Change default shell to zsh
     if [ "$SHELL" != "$ZSH_PATH" ]; then
         print_status "Changing default shell to zsh..."
-        chsh -s "$ZSH_PATH"
-        print_success "Default shell changed to zsh (restart terminal to take effect)"
+        print_warning "You may be prompted for your password again..."
+        if sudo chsh -s "$ZSH_PATH" "$USER"; then
+            print_success "Default shell changed to zsh (restart terminal to take effect)"
+        else
+            print_warning "Failed to change default shell automatically."
+            print_status "You can change it manually later with: chsh -s $ZSH_PATH"
+        fi
     else
         print_success "Zsh is already the default shell"
     fi
