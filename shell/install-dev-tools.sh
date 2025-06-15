@@ -382,7 +382,7 @@ done
 
 # Check UV specifically
 if command -v uv &> /dev/null; then
-    echo -e "  ✅ uv: $(command -v uv)"
+    echo -e "  ✅ uv: $(command -v uv) - $(uv --version)"
 elif [[ -f "$HOME/.cargo/bin/uv" ]]; then
     echo -e "  ⚠️  uv: installed but not in PATH ($HOME/.cargo/bin/uv)"
     echo -e "     Run: export PATH=\"\$HOME/.cargo/bin:\$PATH\""
