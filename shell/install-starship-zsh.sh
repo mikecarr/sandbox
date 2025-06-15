@@ -275,8 +275,22 @@ fi
 # Set zsh as default shell if not already
 if [[ "$SHELL" != */zsh ]]; then
     print_status "Setting zsh as default shell..."
-    chsh -s $(which zsh)
-    print_warning "⚠️  You'll need to log out and back in for the shell change to take effect"
+    
+    # Verify zsh is in /etc/shells
+    if ! grep -q "$(which zsh)" /etc/shells; then
+        print_status "Adding zsh to /etc/shells..."
+        echo "$(which zsh)" | sudo tee -a /etc/shells
+    fi
+    
+    # Change default shell
+    if chsh -s "$(which zsh)" 2>/dev/null; then
+        print_status "✅ Default shell changed to zsh"
+        print_warning "⚠️  You'll need to log out and back in for the shell change to take effect"
+    else
+        print_warning "⚠️  Could not change default shell automatically"
+        print_status "To change manually, run: chsh -s $(which zsh)"
+        print_status "Or start zsh now with: exec zsh"
+    fi
 else
     print_status "✅ zsh is already the default shell"
 fi
@@ -293,8 +307,14 @@ print_status "⚡ Enhanced history settings"
 print_status "🔧 Useful aliases and git shortcuts"
 print_status ""
 print_status "To start using:"
-print_status "1. Restart your terminal or run: exec zsh"
-print_status "2. Your prompt should now look different!"
+print_status "1. Start zsh now: exec zsh"
+print_status "2. Or restart your terminal"
+print_status "3. Your prompt should now look different!"
+print_status ""
+print_status "If you see any issues:"
+print_status "• Run 'exec zsh' to start zsh immediately"
+print_status "• Check that zsh is working: zsh --version"
+print_status "• Verify starship: starship --version"
 print_status ""
 print_status "Useful tips:"
 print_status "• Use ↑/↓ arrows for command history"
