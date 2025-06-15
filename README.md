@@ -1,9 +1,5 @@
 # sandbox
 
-
-
-
-
 ## Shells Scripts
 
 * Simple : simple bash
@@ -18,7 +14,8 @@ wget -qO - https://raw.githubusercontent.com/mikecarr/sandbox/refs/heads/master/
 ```
 
 * Zsh with Starship
-* 
+*
+
 ```bash
 # Using curl:
 curl -sSL https://raw.githubusercontent.com/mikecarr/sandbox/refs/heads/master/shell/setup-zsh-starship.sh | bash
@@ -30,18 +27,26 @@ wget -qO - https://raw.githubusercontent.com/mikecarr/sandbox/refs/heads/master/
 
 ## Complete
 
+### Setup SSH Keys
+
+```
+wget -qO - https://raw.githubusercontent.com/mikecarr/sandbox/refs/heads/master/shell/setup-ssh-keys.sh | bash
+```
+
 ### Install all development tools
+
 ```
 wget -qO - https://raw.githubusercontent.com/mikecarr/sandbox/refs/heads/master/shell/install-dev-tools.sh | bash
 ```
 
 ### Install Neovim + LazyVim (depends on dev tools)
+
 ```
 wget -qO - https://raw.githubusercontent.com/mikecarr/sandbox/refs/heads/master/shell/install-neovim-robust.sh | bash
 ```
 
 ### Install shell enhancements
+
 ```
 wget -qO - https://raw.githubusercontent.com/mikecarr/sandbox/refs/heads/master/shell/install-starship-zsh.sh | bash
 ```
-     
