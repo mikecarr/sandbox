@@ -32,16 +32,16 @@ wget -qO - https://raw.githubusercontent.com/mikecarr/sandbox/refs/heads/master/
 
 ### Install all development tools
 ```
-curl -sSL https://raw.githubusercontent.com/mikecarr/sandbox/refs/heads/master/shell/install-dev-tools.sh | bash
+wget -qO - https://raw.githubusercontent.com/mikecarr/sandbox/refs/heads/master/shell/install-dev-tools.sh | bash
 ```
 
 ### Install Neovim + LazyVim (depends on dev tools)
 ```
-curl -sSL https://raw.githubusercontent.com/mikecarr/sandbox/refs/heads/master/shell/install-neovim-robust.sh | bash
+wget -qO - https://raw.githubusercontent.com/mikecarr/sandbox/refs/heads/master/shell/install-neovim-robust.sh | bash
 ```
 
 ### Install shell enhancements
 ```
-curl -sSL https://raw.githubusercontent.com/mikecarr/sandbox/refs/heads/master/shell/install-starship-zsh.sh | bash
+wget -qO - https://raw.githubusercontent.com/mikecarr/sandbox/refs/heads/master/shell/install-starship-zsh.sh | bash
 ```
      
