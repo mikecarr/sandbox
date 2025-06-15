@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -x
-
 # Development Tools Installation Script
 # Installs essential development tools for a complete coding environment
 
@@ -272,25 +270,38 @@ if ! command -v uv &> /dev/null; then
     if wget -qO- https://astral.sh/uv/install.sh | sh; then
         print_status "UV installer completed"
         
-        # Add UV to current session PATH
-        export PATH="$HOME/.cargo/bin:$PATH"
+        # UV can install to different locations, check both common ones
+        UV_PATHS=("$HOME/.cargo/bin" "$HOME/.local/bin")
+        UV_INSTALLED=false
         
-        # Add to shell configs if not already there
-        for shell_config in ~/.bashrc ~/.zshrc ~/.profile; do
-            if [[ -f "$shell_config" ]] && ! grep -q "/.cargo/bin" "$shell_config"; then
-                print_status "Adding UV to PATH in $shell_config"
-                echo 'export PATH="$HOME/.cargo/bin:$PATH"' >> "$shell_config"
+        for uv_path in "${UV_PATHS[@]}"; do
+            if [[ -f "$uv_path/uv" ]]; then
+                print_status "Found UV at: $uv_path/uv"
+                
+                # Add to current session PATH
+                export PATH="$uv_path:$PATH"
+                
+                # Add to shell configs if not already there
+                for shell_config in ~/.bashrc ~/.zshrc ~/.profile; do
+                    if [[ -f "$shell_config" ]] && ! grep -q "$uv_path" "$shell_config"; then
+                        print_status "Adding $uv_path to PATH in $shell_config"
+                        echo "export PATH=\"$uv_path:\$PATH\"" >> "$shell_config"
+                    fi
+                done
+                
+                UV_INSTALLED=true
+                break
             fi
         done
         
         # Verify UV installation
         if command -v uv &> /dev/null; then
             print_status "✅ UV installed successfully: $(uv --version)"
-        elif [[ -f "$HOME/.cargo/bin/uv" ]]; then
-            print_status "✅ UV binary found at $HOME/.cargo/bin/uv"
-            print_warning "UV not in current PATH - restart shell or run: export PATH=\"\$HOME/.cargo/bin:\$PATH\""
+        elif [[ "$UV_INSTALLED" == "true" ]]; then
+            print_status "✅ UV installed but may need shell restart"
+            print_warning "Run: source ~/.zshrc (or restart terminal)"
         else
-            print_warning "UV installation may have failed"
+            print_warning "UV installation may have failed - binary not found"
         fi
     else
         print_warning "UV installation script failed"
@@ -319,7 +330,7 @@ if python3 -m pip install --help 2>/dev/null | grep -q "break-system-packages"; 
     pipx install pytest || print_warning "Failed to install pytest"
     
     # Also install system packages for common Python dev tools
-    sudo apt install -y python3-black python3-flake8 python3-pytest python3-pip python3-venv || print_warning "Some Python packages not available"
+    sudo apt install -y python3-flake8 python3-pytest python3-pip python3-venv || print_warning "Some Python packages not available"
     
 else
     # Legacy system - use pip with --user
@@ -385,11 +396,23 @@ done
 # Check UV specifically
 if command -v uv &> /dev/null; then
     echo -e "  ✅ uv: $(command -v uv) - $(uv --version)"
-elif [[ -f "$HOME/.cargo/bin/uv" ]]; then
-    echo -e "  ⚠️  uv: installed but not in PATH ($HOME/.cargo/bin/uv)"
-    echo -e "     Run: export PATH=\"\$HOME/.cargo/bin:\$PATH\""
 else
-    echo -e "  ❌ uv: not found"
+    # Check common UV installation locations
+    UV_LOCATIONS=("$HOME/.cargo/bin/uv" "$HOME/.local/bin/uv")
+    UV_FOUND=false
+    
+    for uv_location in "${UV_LOCATIONS[@]}"; do
+        if [[ -f "$uv_location" ]]; then
+            echo -e "  ⚠️  uv: installed at $uv_location but not in PATH"
+            echo -e "     Run: export PATH=\"$(dirname "$uv_location"):\$PATH\""
+            UV_FOUND=true
+            break
+        fi
+    done
+    
+    if [[ "$UV_FOUND" == "false" ]]; then
+        echo -e "  ❌ uv: not found"
+    fi
 fi
 
 # Check ruff specifically
