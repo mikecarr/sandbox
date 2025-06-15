@@ -28,3 +28,20 @@ curl -sSL https://raw.githubusercontent.com/mikecarr/sandbox/refs/heads/master/s
 wget -qO - https://raw.githubusercontent.com/mikecarr/sandbox/refs/heads/master/shell/setup-zsh-starship.sh | bash
 ```
 
+## Complete
+
+### Install all development tools
+```
+curl -sSL https://raw.githubusercontent.com/mikecarr/sandbox/refs/heads/master/shell/install-dev-tools.sh | bash
+```
+
+### Install Neovim + LazyVim (depends on dev tools)
+```
+curl -sSL https://raw.githubusercontent.com/mikecarr/sandbox/refs/heads/master/shell/install-neovim-robust.sh | bash
+```
+
+### Install shell enhancements
+```
+curl -sSL https://raw.githubusercontent.com/mikecarr/sandbox/refs/heads/master/shell/install-starship-zsh.sh | bash
+```
+     
