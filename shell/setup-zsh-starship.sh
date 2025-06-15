@@ -333,8 +333,33 @@ main() {
     
     # Check if git is installed (needed for plugins)
     if ! command -v git &> /dev/null; then
-        print_error "Git is required for installing zsh plugins but is not installed."
-        exit 1
+        print_status "Git is required for plugins. Installing git..."
+        case $OS in
+            "ubuntu")
+                sudo apt-get update
+                sudo apt-get install -y git
+                ;;
+            "centos")
+                sudo yum install -y git
+                ;;
+            "arch")
+                sudo pacman -S --noconfirm git
+                ;;
+            "macos")
+                if command -v brew &> /dev/null; then
+                    brew install git
+                else
+                    print_error "Git not found and Homebrew not available. Please install git manually."
+                    exit 1
+                fi
+                ;;
+            *)
+                print_error "Git is required for installing zsh plugins but is not installed."
+                print_status "Please install git manually: sudo apt install git"
+                exit 1
+                ;;
+        esac
+        print_success "Git installed successfully"
     fi
     
     install_zsh_plugins
