@@ -100,82 +100,81 @@ fi
 # Create a nice default starship config
 cat > ~/.config/starship.toml << 'EOF'
 # Starship configuration
-# Get editor completions based on the config schema
-"$schema" = 'https://starship.rs/config-schema.json'
 
 # Inserts a blank line between shell prompts
 add_newline = true
 
-# Change the default prompt format
-format = """\
-[╭╴](238)$env_var\
-$all[╰─](238)$character"""
+# Wait 10 milliseconds for starship to check files under the current directory.
+scan_timeout = 10
 
-# Change the default prompt characters
+# Configure the format of the prompt
+format = """
+$username\
+$hostname\
+$directory\
+$git_branch\
+$git_status\
+$python\
+$nodejs\
+$rust\
+$golang\
+$docker_context\
+$kubernetes\
+$aws\
+$cmd_duration\
+$line_break\
+$character"""
+
 [character]
-success_symbol = "[](238)"
-error_symbol = "[](red)"
+success_symbol = "[➜](bold green)"
+error_symbol = "[➜](bold red)"
 
-# Shows an icon that should be included by zshrc script based on the distribution or os
-[env_var.STARSHIP_DISTRO]
-format = '[$env_value](bold white)'
-variable = "STARSHIP_DISTRO"
-disabled = false
-
-# Shows the username
-[username]
-style_user = "white bold"
-style_root = "black bold"
-format = "[$user]($style) "
-disabled = false
-show_always = true
-
-# Shows the hostname
-[hostname]
-ssh_only = false
-format = "on [$hostname](bold yellow) "
-disabled = false
-
-# Shows current directory
 [directory]
-truncation_length = 1
-truncation_symbol = "…/"
-home_symbol = " ~"
-read_only_style = "197"
-read_only = "  "
-format = "at [$path]($style)[$read_only]($read_only_style) "
+truncation_length = 3
+truncate_to_repo = false
 
-# Shows current git branch
 [git_branch]
-symbol = " "
-format = "via [$symbol$branch]($style)"
-truncation_length = 4
-truncation_symbol = "…/"
-style = "bold green"
+symbol = "🌱 "
 
-# Shows current git status
 [git_status]
-format = '[\($all_status$ahead_behind\)]($style) '
-style = "bold green"
 conflicted = "🏳"
-up_to_date = " "
-untracked = " "
-ahead = "⇡${count}"
-diverged = "⇕⇡${ahead_count}⇣${behind_count}"
-behind = "⇣${count}"
-stashed = " "
-modified = " "
-staged = '[++\($count\)](green)'
-renamed = "襁 "
-deleted = " "
+ahead = "🏎💨"
+behind = "😰"
+diverged = "😵"
+up_to_date = "✓"
+untracked = "🤷‍"
+stashed = "📦"
+modified = "📝"
+staged = "[++($count)](green)"
+renamed = "👅"
+deleted = "🗑"
 
-# Shows kubernetes context and namespace
+[python]
+symbol = "🐍 "
+
+[nodejs]
+symbol = "⬢ "
+
+[rust]
+symbol = "🦀 "
+
+[golang]
+symbol = "🐹 "
+
+[docker_context]
+symbol = "🐳 "
+
 [kubernetes]
-format = 'via [ﴱ $context\($namespace\)](bold purple) '
+symbol = "⎈ "
 disabled = false
 
-# Disable the blank line at the start of the prompt
-# add_newline = false
+[aws]
+symbol = "☁️ "
+
+[cmd_duration]
+min_time = 2_000
+show_milliseconds = false
+format = "took [$duration](bold yellow)"
 EOF
 
 print_status "✅ Starship configuration created"
