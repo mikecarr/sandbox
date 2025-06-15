@@ -55,9 +55,9 @@ sudo apt install -y \
     tar \
     gzip \
     wget \
+    curl \
     ca-certificates \
     gnupg \
-    uv \
     lsb-release
 
 # Modern CLI tools (recommended for LazyVim/development)
@@ -69,6 +69,39 @@ sudo apt install -y \
     tree \
     htop \
     jq
+
+# Install btop (modern system monitor)
+print_status "Installing btop (modern system monitor)..."
+if apt-cache show btop >/dev/null 2>&1; then
+    sudo apt install -y btop
+    print_status "✅ btop installed from repository"
+else
+    print_warning "btop not available in repositories, installing from GitHub..."
+    # Get latest btop release for systems where it's not in repos
+    BTOP_VERSION=$(wget -qO- https://api.github.com/repos/aristocratos/btop/releases/latest | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+    if [[ -n "$BTOP_VERSION" ]]; then
+        TEMP_DIR="/tmp/btop-install"
+        mkdir -p "$TEMP_DIR"
+        cd "$TEMP_DIR"
+        
+        # Download and install btop
+        wget -O btop.tbz "https://github.com/aristocratos/btop/releases/download/${BTOP_VERSION}/btop-x86_64-linux-musl.tbz"
+        tar -xjf btop.tbz
+        sudo cp btop/bin/btop /usr/local/bin/
+        sudo chmod +x /usr/local/bin/btop
+        
+        cd - > /dev/null
+        rm -rf "$TEMP_DIR"
+        
+        if command -v btop &> /dev/null; then
+            print_status "✅ btop installed from GitHub"
+        else
+            print_warning "btop installation failed"
+        fi
+    else
+        print_warning "Could not fetch btop version, skipping..."
+    fi
+fi
 
 # Programming language tools
 print_status "Installing programming language support..."
@@ -137,6 +170,14 @@ else
 fi
 
 print_header "✅ Development Tools Installation Complete!"
+print_status "System monitoring tools:"
+print_status "• htop - Interactive process viewer"
+print_status "• btop - Modern system monitor with graphs"
+print_status ""
+print_status "Quick commands:"
+print_status "• htop                         # Traditional process monitor"
+print_status "• btop                         # Modern system monitor"
+print_status "• curl -s url                  # Download/test HTTP endpoints"
 print_status ""
 print_status "Installed tools:"
 print_status "📦 Core: gcc, make, cmake, git"
@@ -148,7 +189,7 @@ print_status ""
 
 # Verify key installations
 print_status "Verifying installations..."
-for cmd in gcc git make ripgrep fzf python3 node npm; do
+for cmd in gcc git make curl wget ripgrep fzf python3 node npm htop btop; do
     if command -v "$cmd" &> /dev/null; then
         echo -e "  ✅ $cmd: $(command -v "$cmd")"
     else
@@ -157,7 +198,7 @@ for cmd in gcc git make ripgrep fzf python3 node npm; do
 done
 
 # Check Python tools
-for tool in black flake8 mypy pytest; do
+for tool in black flake8 mypy pytest ruff uv; do
     if command -v "$tool" &> /dev/null || pipx list 2>/dev/null | grep -q "$tool"; then
         echo -e "  ✅ $tool: available"
     else
@@ -167,6 +208,19 @@ done
 
 print_status ""
 print_status "🎉 Your development environment is ready!"
+print_status ""
+print_status "Python tools installed:"
+print_status "• UV - Ultra-fast Python package installer and resolver"
+print_status "• Ruff - Extremely fast Python linter and formatter"
+print_status "• Black - Code formatter"
+print_status "• Flake8 - Linting tool"
+print_status "• MyPy - Type checker"
+print_status "• Pytest - Testing framework"
+print_status ""
+print_status "Quick UV usage:"
+print_status "• uv pip install package_name  # Fast pip replacement"
+print_status "• uv venv                      # Create virtual environment"
+print_status "• uv pip list                  # List packages"
 print_status ""
 print_status "Next steps:"
 print_status "1. Install Neovim + LazyVim:"
