@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -x
+
 # Development Tools Installation Script
 # Installs essential development tools for a complete coding environment
 
