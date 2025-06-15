@@ -98,6 +98,32 @@ install_starship() {
     print_success "Starship installed successfully"
 }
 
+# Install zsh plugins
+install_zsh_plugins() {
+    print_status "Installing zsh plugins..."
+    
+    # Create plugins directory
+    mkdir -p "$HOME/.config/zsh/plugins"
+    
+    # Install zsh-autosuggestions
+    if [ ! -d "$HOME/.config/zsh/plugins/zsh-autosuggestions" ]; then
+        print_status "Installing zsh-autosuggestions..."
+        git clone https://github.com/zsh-users/zsh-autosuggestions "$HOME/.config/zsh/plugins/zsh-autosuggestions"
+        print_success "zsh-autosuggestions installed"
+    else
+        print_success "zsh-autosuggestions already installed"
+    fi
+    
+    # Install zsh-syntax-highlighting
+    if [ ! -d "$HOME/.config/zsh/plugins/zsh-syntax-highlighting" ]; then
+        print_status "Installing zsh-syntax-highlighting..."
+        git clone https://github.com/zsh-users/zsh-syntax-highlighting "$HOME/.config/zsh/plugins/zsh-syntax-highlighting"
+        print_success "zsh-syntax-highlighting installed"
+    else
+        print_success "zsh-syntax-highlighting already installed"
+    fi
+}
+
 # Configure zsh with starship
 configure_zsh() {
     print_status "Configuring zsh with starship..."
@@ -137,6 +163,24 @@ zstyle ':completion:*' menu select
 
 # Enable colors
 autoload -U colors && colors
+
+# Load zsh plugins
+if [ -f "$HOME/.config/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh" ]; then
+    source "$HOME/.config/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh"
+fi
+
+if [ -f "$HOME/.config/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]; then
+    source "$HOME/.config/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+fi
+
+# Autosuggestions configuration
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#666666"
+ZSH_AUTOSUGGEST_STRATEGY=(history completion)
+
+# Key bindings for autosuggestions
+bindkey '^I' forward-word              # Tab to accept suggestion word by word
+bindkey '^[[Z' autosuggest-accept      # Shift+Tab to accept full suggestion
+bindkey '^F' autosuggest-accept        # Ctrl+F to accept suggestion
 
 # Aliases
 alias ll='ls -alF'
@@ -286,6 +330,14 @@ main() {
     else
         install_zsh
     fi
+    
+    # Check if git is installed (needed for plugins)
+    if ! command -v git &> /dev/null; then
+        print_error "Git is required for installing zsh plugins but is not installed."
+        exit 1
+    fi
+    
+    install_zsh_plugins
     
     # Check if starship is already installed
     if command -v starship &> /dev/null; then
