@@ -55,7 +55,6 @@ sudo apt install -y \
     tar \
     gzip \
     wget \
-    curl \
     ca-certificates \
     gnupg \
     lsb-release
@@ -104,11 +103,37 @@ if command -v fdfind &> /dev/null && ! command -v fd &> /dev/null; then
 fi
 
 print_status "Setting up Python development environment..."
-# Upgrade pip and install common packages
-python3 -m pip install --user --upgrade pip setuptools wheel
 
-# Install common Python development tools
-python3 -m pip install --user black flake8 mypy pytest
+# Check if we're in a newer system with externally-managed-environment
+if python3 -m pip install --help 2>/dev/null | grep -q "break-system-packages"; then
+    print_status "Detected externally-managed Python environment, using pipx for user packages..."
+    
+    # Install pipx first if not available
+    if ! command -v pipx &> /dev/null; then
+        sudo apt install -y pipx python3-full
+        pipx ensurepath
+    fi
+    
+    # Install Python development tools via pipx (in isolated environments)
+    print_status "Installing Python tools via pipx..."
+    pipx install black || print_warning "Failed to install black"
+    pipx install flake8 || print_warning "Failed to install flake8"
+    pipx install mypy || print_warning "Failed to install mypy"
+    pipx install pytest || print_warning "Failed to install pytest"
+    
+    # Also install system packages for common Python dev tools
+    sudo apt install -y python3-black python3-flake8 python3-pytest python3-pip python3-venv || print_warning "Some Python packages not available"
+    
+else
+    # Legacy system - use pip with --user
+    print_status "Installing Python packages with pip..."
+    
+    # Upgrade pip and install common packages
+    python3 -m pip install --user --upgrade pip setuptools wheel
+    
+    # Install common Python development tools
+    python3 -m pip install --user black flake8 mypy pytest
+fi
 
 print_header "✅ Development Tools Installation Complete!"
 print_status ""
@@ -127,6 +152,15 @@ for cmd in gcc git make ripgrep fzf python3 node npm; do
         echo -e "  ✅ $cmd: $(command -v "$cmd")"
     else
         echo -e "  ❌ $cmd: not found"
+    fi
+done
+
+# Check Python tools
+for tool in black flake8 mypy pytest; do
+    if command -v "$tool" &> /dev/null || pipx list 2>/dev/null | grep -q "$tool"; then
+        echo -e "  ✅ $tool: available"
+    else
+        echo -e "  ⚠️  $tool: not found (may need manual install)"
     fi
 done
 
