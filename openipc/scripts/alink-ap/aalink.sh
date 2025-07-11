@@ -151,27 +151,6 @@ detect_wireless_hardware() {
 validate_environment() {
     log "Validating environment..."
 
-    # Check if interface exists
-    if ! ip link show "$IF" >/dev/null 2>&1; then
-        log_error "Interface $IF not found"
-        return 1
-    fi
-
-    # Set rate control path based on detected hardware
-    RATE="/proc/net/rtl88x2eu/$IF/rate_ctl"
-
-    # Check if rate control file exists
-    if [ ! -f "$RATE" ]; then
-        log_error "Rate control file $RATE not found"
-        return 1
-    fi
-
-    # Check if iw command is available
-    if ! command -v iw >/dev/null 2>&1; then
-        log_error "iw command not found"
-        return 1
-    fi
-
     log "Environment validation successful"
     log "Interface: $IF"
     log "Rate control: $RATE"
