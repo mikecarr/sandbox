@@ -152,8 +152,6 @@ validate_environment() {
     log "Validating environment..."
 
     log "Environment validation successful"
-    log "Interface: $IF"
-    log "Rate control: $RATE"
     log "Target IP: $TARGET_IP"
     log "API URL: $API_URL"
 
