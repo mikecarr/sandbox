@@ -2,7 +2,15 @@
 # /etc/init.d/aalink
 # Init script for aalink adaptive bitrate control
 
-. /lib/lsb/init-functions || true
+### BEGIN INIT INFO
+# Provides:          aalink
+# Required-Start:    $remote_fs
+# Required-Stop:     $remote_fs
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start/stop aalink
+# Description:       Start/stop aalink
+### END INIT INFO
 
 DAEMON="aalink"
 DAEMON_PATH="/usr/bin/aalink.sh"
