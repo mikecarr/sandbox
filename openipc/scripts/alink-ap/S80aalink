@@ -1,0 +1,149 @@
+#!/bin/sh
+# /etc/init.d/aalink
+# Init script for aalink adaptive bitrate control
+
+. /lib/lsb/init-functions || true
+
+DAEMON="aalink"
+DAEMON_PATH="/usr/bin/aalink.sh"
+PIDFILE="/var/run/$DAEMON.pid"
+LOGFILE="/var/log/$DAEMON.log"
+
+start() {
+    echo "Starting $DAEMON..."
+    
+    # Check if already running
+    if [ -f "$PIDFILE" ] && kill -0 $(cat "$PIDFILE") 2>/dev/null; then
+        echo "$DAEMON is already running"
+        return 1
+    fi
+    
+    # Check if daemon script exists
+    if [ ! -x "$DAEMON_PATH" ]; then
+        echo "Error: $DAEMON_PATH not found or not executable"
+        return 1
+    fi
+    
+    # Start the daemon (silent by default)
+    "$DAEMON_PATH" &
+    echo $! > "$PIDFILE"
+    
+    # Wait a moment to see if it started successfully
+    sleep 2
+    if kill -0 $(cat "$PIDFILE") 2>/dev/null; then
+        echo "$DAEMON started with PID $(cat $PIDFILE)"
+        return 0
+    else
+        echo "Failed to start $DAEMON"
+        rm -f "$PIDFILE"
+        return 1
+    fi
+}
+
+stop() {
+    echo "Stopping $DAEMON..."
+    
+    if [ ! -f "$PIDFILE" ]; then
+        echo "$DAEMON is not running"
+        return 1
+    fi
+    
+    PID=$(cat "$PIDFILE")
+    if kill -0 "$PID" 2>/dev/null; then
+        # Send TERM signal for graceful shutdown
+        kill -TERM "$PID" 2>/dev/null
+        
+        # Wait for graceful shutdown (up to 10 seconds)
+        for i in 1 2 3 4 5 6 7 8 9 10; do
+            if ! kill -0 "$PID" 2>/dev/null; then
+                break
+            fi
+            sleep 1
+        done
+        
+        # Force kill if still running
+        if kill -0 "$PID" 2>/dev/null; then
+            echo "Force killing $DAEMON..."
+            kill -KILL "$PID" 2>/dev/null
+            sleep 1
+        fi
+    fi
+    
+    rm -f "$PIDFILE"
+    echo "$DAEMON stopped"
+    return 0
+}
+
+restart() {
+    stop
+    sleep 2
+    start
+}
+
+status() {
+    if [ -f "$PIDFILE" ] && kill -0 $(cat "$PIDFILE") 2>/dev/null; then
+        echo "$DAEMON is running (PID: $(cat $PIDFILE))"
+        return 0
+    else
+        echo "$DAEMON is not running"
+        return 1
+    fi
+}
+
+logs() {
+    echo "Starting $DAEMON with verbose logging..."
+    echo "Press Ctrl+C to stop"
+    
+    if [ -f "$PIDFILE" ] && kill -0 $(cat "$PIDFILE") 2>/dev/null; then
+        echo "$DAEMON is already running. Stop it first to run with logging."
+        return 1
+    fi
+    
+    "$DAEMON_PATH" --verbose --log "$LOGFILE"
+}
+
+debug() {
+    if [ -f "$PIDFILE" ] && kill -0 $(cat "$PIDFILE") 2>/dev/null; then
+        echo "$DAEMON is already running. Stop it first to run in debug mode."
+        return 1
+    fi
+    
+    echo "Starting $DAEMON in debug mode (verbose output only)..."
+    echo "Press Ctrl+C to stop"
+    "$DAEMON_PATH" --verbose
+}
+
+case "$1" in
+    start)   
+        start 
+        ;;
+    stop)    
+        stop 
+        ;;
+    restart) 
+        restart 
+        ;;
+    status)  
+        status 
+        ;;
+    logs)    
+        logs 
+        ;;
+    debug)   
+        debug 
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|restart|status|logs|debug}"
+        echo ""
+        echo "Commands:"
+        echo "  start   - Start the service in background (silent)"
+        echo "  stop    - Stop the service"
+        echo "  restart - Restart the service"
+        echo "  status  - Show service status"
+        echo "  logs    - Run with verbose output and log to file"
+        echo "  debug   - Run with verbose output only (no log file)"
+        exit 1
+        ;;
+esac
+
+exit $?
